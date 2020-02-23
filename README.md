@@ -17,6 +17,6 @@ this project is aimed at extracting data from https://www.wahlrecht.de/umfragen/
 ## Usage
 
 ```
-	html_table [html file]
+	html_table [FILE] [-d DELIMITER]
 ```
 

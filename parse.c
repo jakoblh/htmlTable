@@ -7,14 +7,18 @@
 #define HEAD 2
 #define TABLE 3
 
-int main(int argc, char **argv){
+int print_table(char *file, char *delim){
 	FILE *fp;
 	char *line = NULL;
 	size_t len = 0;
 	ssize_t read;
 
 	int mode = USELESS;
-	fp = fopen(argv[1], "r");
+	fp = fopen(file, "r");
+
+	if(fp == NULL){
+		return -1;
+	}
 
 	while((read = getline(&line, &len, fp)) != -1){
 		if(strcmp("<thead>\n", line) == 0){
@@ -27,7 +31,11 @@ int main(int argc, char **argv){
 		else if(strcmp("<tbody>\n", line) == 0){
 				mode = TABLE;
 		}
-		else if(mode == TABLE && strcmp("</tr>\n", line) == 0){
+		else if(strcmp("</tbody>\n", line) == 0){
+			free(line);
+			return 0;
+		}
+		else if(mode != USELESS && strcmp("</tr>\n", line) == 0){
 			printf("\n");
 		}
 		else if(mode != USELESS && strcmp("<tr>\n", line) == 0){
@@ -46,10 +54,62 @@ int main(int argc, char **argv){
 				}
 				i++;
 			}
-			printf("\t");
+			printf(delim);
 		}
 	}
 
-
 	free(line);
+	return 0;
+}
+
+int parse_arguments(int argc, char **argv, char **file, char **delim){
+	if(argc <= 1){
+		return -1;
+	}
+
+	for(int i = 0; i < argc; i++){
+		if(argv[i][0] == '-'){
+
+			//delimiter
+			if(argv[i][1] == 'd'){
+				if(argv[i][2] == 0){
+					if(i + 1 < argc){
+						i++;
+						(*delim) = argv[i];
+						break;
+					}
+					return -1;
+				}
+				(*delim) = argv[i] + 2;
+			}
+
+		}	
+		else{
+			(*file) = argv[i];
+		}
+	}
+	if(*delim == NULL){
+		*delim = "\t";
+	}
+	if(*file == NULL)
+		return -1;
+
+	return 0;
+}
+
+int main(int argc, char **argv){
+	char *delim = NULL;
+	char *file = NULL;
+
+	if(parse_arguments(argc, argv, &file, &delim)){
+		printf("wrong arguments\n");
+		return -1;
+	}
+
+	if(print_table(file, delim)){
+		printf("error printing\n");
+		return -1;
+	}
+
+	return 0;
 }
