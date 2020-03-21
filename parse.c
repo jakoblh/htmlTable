@@ -101,10 +101,13 @@ int main(int argc, char **argv){
 	char *delim = NULL;
 	char *file = NULL;
 
+	printf(argv[0]);
+
 	if(parse_arguments(argc, argv, &file, &delim)){
 		printf("wrong arguments\n");
 		return -1;
 	}
+
 
 	if(print_table(file, delim)){
 		printf("error printing\n");
